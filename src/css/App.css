@@ -1,5 +1,7 @@
 .App {
   text-align: center;
+  max-width: '100%'
+
 }
 
 .App-logo {
@@ -36,3 +38,4 @@
     transform: rotate(360deg);
   }
 }
+

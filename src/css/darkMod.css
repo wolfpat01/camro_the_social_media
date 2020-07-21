@@ -1,0 +1,10 @@
+.whiteText{
+    color: azure !important;
+  }
+  .darkText{
+    color: rgb(0, 8, 85) !important;
+  }
+
+  .pannelDark{
+    background: rgb(44, 44, 44);
+  }

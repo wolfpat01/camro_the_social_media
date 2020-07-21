@@ -1,0 +1,40 @@
+.postMain{
+    border: 2cm;
+    border-color: darkgoldenrod;
+    border-radius: 1em;
+    margin-bottom: 1em;
+}
+
+.postback{
+    padding: 1em;
+    padding-top: 0em;
+    margin-top: -3.3em;
+    margin-left: 3em;
+ 
+}
+.bb{
+    border-bottom: black 2cm;
+}
+
+.pfp{
+    margin-top: .1cm;
+    margin-left: -.2em;
+    width:64px;
+    height:64px;
+    padding:.1cm;    
+    border-radius: 50%;
+}
+.username{
+    margin-left: .9em;
+    margin-top:.2em;
+}
+.title{
+    margin-top: .4em;
+    margin-left: .3em;
+}
+.postParagraph{
+    margin-top: -1em;
+}
+.disco{
+    padding: 2em;
+}
