@@ -2,13 +2,19 @@ import React from "react"
 import * as Bootstrap from 'react-bootstrap';
 import "../css/darkMod.css"
 
+import User from "./objects/user"
+
 const darky = "pannelDark";
 const lighty = "light";
 const white = "whiteText";
 const dark = "darkText";
 
 class Menu extends React.Component {
-
+  makeSure() {
+    if (this.props.token) {
+      return <div><User token={this.props.token} darkTheme={this.props.darkTheme}></User>logout</div>
+    } else { return <p>loading..</p> }
+  }
   render() {
 
     let pannelColor = this.props.darkTheme ? darky : lighty;
@@ -19,11 +25,12 @@ class Menu extends React.Component {
         <Bootstrap.Navbar.Toggle aria-controls="basic-navbar-nav" className={textColor} />
         <Bootstrap.Navbar.Collapse id="basic-navbar-nav">
           <Bootstrap.Nav className={"mr-auto " + textColor} >
-            <Bootstrap.Nav.Link href="#home" className={textColor} >Home</Bootstrap.Nav.Link>
-            <Bootstrap.Nav.Link href="#link" className={textColor} >Link</Bootstrap.Nav.Link>
+            <Bootstrap.Nav.Link href="/" className={textColor} >Home</Bootstrap.Nav.Link>
+            <Bootstrap.Nav.Link href="/login" className={textColor} >login</Bootstrap.Nav.Link>
           </Bootstrap.Nav>
 
         </Bootstrap.Navbar.Collapse>
+        {this.makeSure()}
       </Bootstrap.Navbar>
     )
   }

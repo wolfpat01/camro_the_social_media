@@ -5,7 +5,8 @@ import User from "./user";
 import PostData from "./postData"
 import "../../css/post.css"
 
-
+//socket way 
+import io from "socket.io-client"
 
 
 const darky = "pannelDark";
@@ -13,39 +14,49 @@ const lighty = "bg-info";
 
 
 class Post extends React.Component {
-    constructor() {
-        super()
+    constructor(props) {
+        super(props)
         this.state = {
             postData: {
-                userToken: "token",
                 postText: "loading..",
                 postTitle: "Loading.."
             }
 
         }
-        this.state.firstTime = true
-        //setInterval(() => this.getPostDetails(), 20000)
+        this.getPostDataSocketWay();
+
     }
-    getPostDetails() {
+    getPostDetails(props) {
         getPostData(this.props.token || "token").then((res) => JSON.parse(res)).then((postData) => this.setState({ postData }))
     }
-    firsttimer() {
 
-        if (this.state.firstTime) { console.log("yee"); this.state.firstTime = false }
+    getPostDataSocketWay() {
+
+        const socket = io("localhost:80");
+
+        socket.emit("postData", { token: this.props.token || "token" })
+        socket.on("postData", (postData) => {
+            this.setState({ postData: JSON.parse(postData) })
+            //this.state.postData = JSON.parse(postData)
+
+        })
+
+
+    }
+    makeSure() {
+        if (this.state.postData.userToken) {
+            return <User token={this.state.postData.userToken} darkTheme={this.props.darkTheme}></User>
+        } else { return <p>loading..</p> }
     }
     render() {
-        this.getPostDetails();
-        this.firsttimer()
-
+        //this.getPostDetails();
         let postToken = ""
         let pannelColor = this.props.darkTheme ? darky : lighty;
 
-        return <div className={pannelColor + " col-12 postMain"}>
-            <User token={this.state.postData.userToken} darkTheme={this.props.darkTheme}></User>
-
+        return <div className={pannelColor + " col-12 postMain"}>{this.makeSure()}
             <div className="postback">
                 <PostData postToken={postToken} darkTheme={this.props.darkTheme}
-                    postTitle={this.state.postData.postTitle}
+
                     postText={this.state.postData.postText}></PostData>
             </div>
 

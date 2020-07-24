@@ -1,5 +1,8 @@
 import React from "react";
 import { sendPostRequest } from "../helpers/serverHandler"
+import io from "socket.io-client"
+import Cookies from "js-cookie"
+import Input from "./input"
 class Poster extends React.Component {
 
     constructor(props) {
@@ -10,21 +13,27 @@ class Poster extends React.Component {
         }
     }
     sendPostRequest(e) {
-
         const options = {
-            userToken: this.props.token,
+            userToken: Cookies.get("userData"),
             title: this.state.title,
-            content: this.state.content
+            content: this.state.content,
         }
+        console.log(options)
+        // socket way 
+        const socket = io("localhost:80");
+        socket.emit("submitPost", JSON.stringify(options))
 
-        sendPostRequest(options)
-
-        this.props.onPost()
-        //e.target.disabled = true;
+        /*
+                sendPostRequest(options)
+        
+                this.props.onPost()
+                //e.target.disabled = true;
+            */
 
 
     }
     handleChange = (e) => {
+        console.log("this", e.target.name)
         this.setState({
             [e.target.name]: e.target.value
         })
@@ -32,18 +41,16 @@ class Poster extends React.Component {
 
 
     render() {
-        return <div className="row container">
-            <div className="col-12 row container">
-                <h4 className="col-lg-2 col-12">title:</h4> <input type="text" name="title" className="col-10"
+        return <div className="row container backposter">
 
-                    onChange={e => this.handleChange(e)}></input>
-            </div>
             <div className="col-12 row container discro">
-                <h4 className="col-12">discription:</h4><input type="text" name="content" className="col-12"
+                <br />
 
-                    onChange={e => this.handleChange(e)}></input>
+                <Input type="text" name="content" className="col-12"
+                    display="what do think of?"
+                    onChange={e => this.handleChange(e)}></Input>
             </div>
-            <button onClick={(e) => this.sendPostRequest(e)}>post</button>
+            <button className="btn btn-primary" onClick={(e) => this.sendPostRequest(e)}>post</button>
         </div >
     }
 }
