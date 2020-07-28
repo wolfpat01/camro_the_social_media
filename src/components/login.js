@@ -38,7 +38,8 @@ class Login extends React.Component {
         })
     }
     render() {
-        return <React.Fragment> <form className="container login">
+        return <React.Fragment> <form className=" login">
+            <h3 className="text-center">Login</h3>
             <Input name="username" display="username" onChange={(e) => this.handleChange(e)} required></Input><br />
             <Input name="password" type="password" display="password" onChange={(e) => this.handleChange(e)} required></Input><br />
 
@@ -96,6 +97,7 @@ class Register extends React.Component {
     render() {
 
         return <div className=" login ">
+            <h3 className="text-center">Register</h3>
             <Input name="pfp" display="link to pfp" onChange={(e) => this.handleChange(e)}></Input><br />
             <Input name="username" display="username" onChange={(e) => this.handleChange(e)}></Input><br />
             <Input type="password" name="password" display="password" onChange={(e) => this.handleChange(e)}></Input><br />
