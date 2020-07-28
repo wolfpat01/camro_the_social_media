@@ -95,11 +95,11 @@ class Register extends React.Component {
     }
     render() {
 
-        return <div className="container login">
-            <Input name="pfp" display="button to pfp" onChange={(e) => this.handleChange(e)}></Input><br />
+        return <div className=" login ">
+            <Input name="pfp" display="link to pfp" onChange={(e) => this.handleChange(e)}></Input><br />
             <Input name="username" display="username" onChange={(e) => this.handleChange(e)}></Input><br />
             <Input type="password" name="password" display="password" onChange={(e) => this.handleChange(e)}></Input><br />
-            <Input type="password" name="verifyPassword" display="verify Password" onChange={(e) => this.handleChange(e)}></Input><br />
+            <Input type="password" name="verifyPassword" display="repeate Password" onChange={(e) => this.handleChange(e)}></Input><br />
 
             <h3>{this.state.message}</h3>
             <button onClick={(e) => this.submit(e)} className='btn btn-primary' disabled={this.state.disabled}>Register</button>

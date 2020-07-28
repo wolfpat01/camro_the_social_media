@@ -1,3 +1,5 @@
 .login{
-    margin: 2em;
+    position: absolute;
+    left:25%;
+    top:25%;
 }

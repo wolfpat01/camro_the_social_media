@@ -8,17 +8,20 @@ import {
 } from "react-router-dom";
 import './css/index.css';
 import App from './App';
-import Login from "./login.js"
+import { Login, Register, Logout } from "./components/login"
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
   <Router>
     <Switch>
       <Route path="/login">
-        <Login mod="login" />
+        <Login />
       </Route>
       <Route path="/register">
-        <Login mod="register" />
+        <Register />
+      </Route>
+      <Route path="/logout">
+        <Logout />
       </Route>
       <Route path="/">
         <App />
