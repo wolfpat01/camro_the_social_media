@@ -36,7 +36,8 @@ class Post extends React.Component {
 
         socket.emit("postData", { token: this.props.token || "token" })
         socket.on("postData", (postData) => {
-            this.setState({ postData: JSON.parse(postData) })
+
+            this.setState({ postData: postData })
             //this.state.postData = JSON.parse(postData)
 
         })
@@ -44,6 +45,7 @@ class Post extends React.Component {
 
     }
     makeSure() {
+
         if (this.state.postData.userToken) {
             return <User token={this.state.postData.userToken} darkTheme={this.props.darkTheme}></User>
         } else { return <p>loading..</p> }

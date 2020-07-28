@@ -1,4 +1,12 @@
 
+const variables = {
+    recommended: "recomended",
+    users: 'users',
+    posts: "posts",
+}
+
+
+
 const fs = require("fs")
 const randomString = require("randomstring")
 const port = 4000
@@ -6,31 +14,73 @@ const Dir = "server"
 
 const { fetch } = require("node-fetch");
 const crypto = require("crypto")
-function post(body, postToken) {
 
+// Easy file handleing 
+const { LocaleDb } = require('informa-db.js')
+const path = 'server/data.json'
+
+const Data = new LocaleDb({ path, defaultStr: {} })
+Data.saveOnChange = true
+if (!Data.value) {
+    Data.value = {}
+}
+Object.values(variables).forEach((vari) => {
+
+    if (!Data.value[vari]) {
+        Data.value[vari] = {}
+    }
+})
+//////////////////////
+
+function readArray(type) {
+    return Object.values(Data.value[type])
+}
+
+function writeData(type, data) {
+    let wasthere = true
+
+    if (!Data.value[type]) {
+        Data.value[type] = {}
+        wasthere = false
+        console.log("yepish")
+    }
+    console.log("yep")
+    Data.value[type][data.token] = data
+
+    return wasthere
+}
+function getData(type, id) {
+
+    if (!Data.value[type]) {
+        Data.value[type] = {}
+
+    }
+    return Data.value[type][id]
+}
+
+
+function post(body, postToken) {
     const pageToken = body.pageToken;
     const userToken = body.userToken;
     const title = body.title;
     const content = body.content;
 
 
-    let path = `${Dir}/data/posts/${postToken}.json`
+
     let data = {
         "pageToken": pageToken,
         "userToken": userToken,
         "postTitle": title,
         "postText": content
     }
-    writeOnFile(path, JSON.stringify(data))
 
+    //writeOnFile(path, JSON.stringify(data))
+    writeData("posts", { token: postToken, ...data })
 
-    // add to the default list
-    path = `${Dir}/data/listPosts/token.json`
-    readFile(path).then((data2) => {
-        let data = JSON.parse(data2)
-        data.push(postToken)
-        writeOnFile(path, JSON.stringify(data))
-    })
+    if (!Data.value[variables.recommended]["default"]) {
+        Data.value[variables.recommended]["default"] = []
+    }
+    Data.value[variables.recommended]["default"].push(postToken)
 }
 function register(body) {
     const userToken = body.userToken
@@ -38,41 +88,15 @@ function register(body) {
     const secrets = body.secrets;
 
 
-    let path = `${Dir}/data/userData/${userToken}.json`
     let data = {
-        "username": username,
+        username,
         "pfp": body.pfp || "https://steamuserimages-a.akamaihd.net/ugc/955209606282075133/86D6BE9BD36DF085E365F8FB8ADA84B7FD0B5B03/",
-        "secrets": secrets
+        secrets
     }
-    writeOnFile(path, JSON.stringify(data))
+
+
+    writeData("users", { token: userToken, ...data })
 }
-
-
-
-function readFile(path) {
-    return new Promise((solve, reject) => {
-        try {
-            solve(fs.readFileSync(path, 'utf8'))
-        }
-        catch  {
-            solve("")
-        }
-    })
-}
-function writeOnFile(path, data) {
-
-    return new Promise((solve, reject) => {
-        try {
-
-            fs.writeFileSync(path, data)
-            solve(200)
-        }
-        catch  {
-            solve(300)
-        }
-    })
-}
-
 
 // socket way
 const sockets = require("socket.io")(80)
@@ -80,7 +104,7 @@ const sockets = require("socket.io")(80)
 function getPosts(userToken) {
     let token = userToken;
 
-    return fs.readFileSync(`${Dir}/data/posts/${token}.json`, 'utf8') || "NOT FOUND"
+    return getData("posts", token)//fs.readFileSync(`${Dir}/data/posts/${token}.json`, 'utf8') || "NOT FOUND"
 
 }
 
@@ -90,18 +114,20 @@ sockets.on('connection', socket => {
     })
     socket.on("userData", (args) => {
         let token = args.token;
-        let data = fs.readFileSync(`${Dir}/data/userData/${token}.json`, 'utf8') || "NOT FOUND"
 
-        socket.emit("userData", { ...JSON.parse(data), secrets: [] })
+        let data = getData("users", token)
+        socket.emit("userData", { ...data, secrets: [] })
     })
     socket.on("gimmeStarter", (args) => {
         let token = !args.token === "" ? args.token : "token";
 
-        let data = fs.readFileSync(`${Dir}/data/listPosts/${token}.json`, 'utf8') || fs.readFileSync(`${Dir}/data/listPosts/token.json`, 'utf8')
+        let data = getData(variables.recommended, token)
+        if (!data) data = getData(variables.recommended, "default")
 
-
-        socket.emit("starter", data)
+        if (data)
+            socket.emit("starter", data)
     })
+
     socket.on('submitPost', (postData) => {
         let body = JSON.parse(postData);
         let postToken = randomString.generate(8)
@@ -113,8 +139,6 @@ sockets.on('connection', socket => {
         let salt = randomString.generate(12)
         var hash = crypto.createHash('md5').update(data.password + salt).digest("hex");
         let userToken = randomString.generate(12)
-        let dir = `${Dir}/data/userData/`
-
 
 
         // verify if the password is less than 8 digits
@@ -123,7 +147,7 @@ sockets.on('connection', socket => {
 
         } else {
             //verify if there is another user with this same user
-            checkUserName(data.username, dir).then(() => {
+            checkUserName(data.username, registerRejectionUsername).then(() => {
                 // add user
                 register({ username: data.username, userToken, pfp: data.pfp, secrets: [hash, salt] })
                 socket.emit("message", { message: "Registerd SUccessFully!", status: 200 })
@@ -137,37 +161,29 @@ sockets.on('connection', socket => {
     })
 })
 
-
-
+const loginRejectionUsername = "username is incorrect"
+const registerRejectionUsername = "username is incorrect"
 function checkLogin(username, password) {
-    return checkExistantOfUsername(username).then((data) => checkPassword(data, password))
+    return checkUserName(username, loginRejectionUsername).then((data) => checkPassword(data, password))
 }
-function checkExistantOfUsername(username) {
 
-    const directoryPath = `${Dir}/data/userData/`
+function checkUserName(username, rejection) {
     return new Promise((solve, reject) => {
-        fs.readdir(directoryPath, function (err, files) {
-            //handling error
-            if (err) {
-                reject("folder doesn't exist")
-            }
-            //listing all files using forEach
-            let exits = ''
-            files.forEach(file => {
-                let data = JSON.parse(fs.readFileSync(`${directoryPath}/${file}`, 'utf8'))
-                if (data.username == username) {
-                    exits = { ...data, token: file.slice(0, file.length - 5) };
-                }
-            });
-            if (exits !== '') {
-                solve(exits)
-            } else {
-                reject("username is incorrect")
+        //listing all files using forEach
+        let exits = ''
+        readArray(variables.users).forEach(user => {
+            if (user.username == username) {
+                exits = user;
             }
         });
-    })
-}
+        if (exits !== '') {
+            solve(exits)
+        } else {
+            reject(rejection)
+        }
+    });
 
+}
 
 function checkPassword(data, password) {
     return new Promise((solve, reject) => {
@@ -179,26 +195,4 @@ function checkPassword(data, password) {
         }
     })
 }
-function checkUserName(username, directoryPath) {
-    return new Promise((solve, reject) => {
-        fs.readdir(directoryPath, function (err, files) {
-            //handling error
-            if (err) {
-                reject("folder doesn't exist")
-            }
-            //listing all files using forEach
-            let exits = false
-            files.forEach(file => {
-                let data = JSON.parse(fs.readFileSync(`${directoryPath}/${file}`, 'utf8'))
-                if (data.username == username) {
-                    exits = true;
-                }
-            });
-            if (exits) {
-                reject("sorry this username is used before")
-            } else {
-                solve()
-            }
-        });
-    })
-}
+

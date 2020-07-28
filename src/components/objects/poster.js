@@ -18,7 +18,7 @@ class Poster extends React.Component {
             title: this.state.title,
             content: this.state.content,
         }
-        console.log(options)
+
         // socket way 
         const socket = io("localhost:80");
         socket.emit("submitPost", JSON.stringify(options))
@@ -33,7 +33,6 @@ class Poster extends React.Component {
 
     }
     handleChange = (e) => {
-        console.log("this", e.target.name)
         this.setState({
             [e.target.name]: e.target.value
         })

@@ -1,0 +1,46 @@
+{
+    "recomended": {
+        "default": [
+            "Th5lY293",
+            "uT43Ri0E",
+            "fBT1Isgk"
+        ]
+    },
+    "users": {
+        "JX1GewroBFNW": {
+            "token": "JX1GewroBFNW",
+            "username": "wolfpat01",
+            "pfp": "https://steamuserimages-a.akamaihd.net/ugc/955209606282075133/86D6BE9BD36DF085E365F8FB8ADA84B7FD0B5B03/",
+            "secrets": [
+                "ace1a7111cb4303cbcd5855e462e66b9",
+                "wxZ57FSEKdLQ"
+            ]
+        }
+    },
+    "posts": {
+        "DBtb0yWt": {
+            "token": "DBtb0yWt",
+            "userToken": "JX1GewroBFNW",
+            "postTitle": "title",
+            "postText": "this si "
+        },
+        "Th5lY293": {
+            "token": "Th5lY293",
+            "userToken": "JX1GewroBFNW",
+            "postTitle": "title",
+            "postText": "no its not"
+        },
+        "uT43Ri0E": {
+            "token": "uT43Ri0E",
+            "userToken": "JX1GewroBFNW",
+            "postTitle": "title",
+            "postText": "this is it"
+        },
+        "fBT1Isgk": {
+            "token": "fBT1Isgk",
+            "userToken": "JX1GewroBFNW",
+            "postTitle": "title",
+            "postText": "yeeti"
+        }
+    }
+}

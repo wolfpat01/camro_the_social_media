@@ -14,7 +14,7 @@ class Communitytab extends React.Component {
             posts: []
         }
 
-        console.log("working with sockets now")
+
         this.getPostsSocketWay()
     }
     getPosts() {
@@ -22,10 +22,11 @@ class Communitytab extends React.Component {
     }
     getPostsSocketWay() {
         const socket = io("localhost:80")
-        console.log("working with sockets now")
+
         socket.emit("gimmeStarter", { token: "token" })
         socket.on("starter", (allPosts) => {
-            this.setState({ posts: JSON.parse(allPosts) })
+
+            this.setState({ posts: allPosts })
 
         })
         socket.on("newPost", (newPost) => {
@@ -38,8 +39,6 @@ class Communitytab extends React.Component {
     }
 
     render() {
-
-        //this.getPosts()
         return <div >
             <Poster token={this.props.token}></Poster>
             news
@@ -55,6 +54,7 @@ class Communitytab extends React.Component {
             return <h2>Loading...</h2>
         }
         let loader = postsData.slice().reverse().map((token) => {
+
             return <Post token={token} key={token} darkTheme={this.props.darkTheme} ></ Post >
         })
 

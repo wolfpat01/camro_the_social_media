@@ -88,11 +88,13 @@ class Register extends React.Component {
                 // redirect
 
             } else {
+
                 this.setState({ message })
             }
         })
     }
     render() {
+
         return <div className="container login">
             <Input name="pfp" display="button to pfp" onChange={(e) => this.handleChange(e)}></Input><br />
             <Input name="username" display="username" onChange={(e) => this.handleChange(e)}></Input><br />

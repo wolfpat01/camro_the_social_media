@@ -8,7 +8,6 @@ import Cookies from "js-cookie"
 let token = Cookies.get("userData")
 let DarkTheme = true
 function App() {
-  console.log(token)
   return (
     <React.Fragment>
 
