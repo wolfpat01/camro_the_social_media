@@ -1,7 +1,5 @@
 {
     "ignore": [
-        "server/data/listPosts/*.json",
-        "server/data/posts/*.json",
-        "server/data/userData/*.json"
+        "server/data.json"
     ]
 }
