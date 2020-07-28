@@ -45,7 +45,7 @@ class User extends React.Component {
                         <img className="pfp" src={this.state.userData.pfp} alt="Flowers in Chania" />
                     </Bootstrap.Col>
                     <Bootstrap.Col sm="9">
-                        <p className={textColor + " username"} >{this.state.userData.username}</p>
+                        <p className={`${textColor} ${this.props.additionalCalsses || " "}`} >{this.state.userData.username}</p>
                     </Bootstrap.Col>
                 </Bootstrap.Row>
 

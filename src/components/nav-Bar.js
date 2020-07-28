@@ -12,7 +12,7 @@ const dark = "darkText";
 class Menu extends React.Component {
   makeSure() {
     if (this.props.token) {
-      return <div><User token={this.props.token} darkTheme={this.props.darkTheme}></User>logout</div>
+      return <div><User token={this.props.token} darkTheme={this.props.darkTheme} additionalCalsses="username"></User>logout</div>
     } else { return <p>loading..</p> }
   }
   render() {

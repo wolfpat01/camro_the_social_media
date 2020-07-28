@@ -55,13 +55,15 @@ class Post extends React.Component {
         let postToken = ""
         let pannelColor = this.props.darkTheme ? darky : lighty;
 
-        return <div className={pannelColor + " col-12 postMain"}>{this.makeSure()}
+        return <div className={pannelColor + " col-12 postMain"}>
+            {this.makeSure()}
             <div className="postback">
                 <PostData postToken={postToken} darkTheme={this.props.darkTheme}
 
                     postText={this.state.postData.postText}></PostData>
-            </div>
 
+            </div>
+            <p>{this.state.postData.date}</p>
         </div>
     }
 }

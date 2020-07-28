@@ -5,6 +5,7 @@ const variables = {
     posts: "posts",
 }
 
+const moment = require("moment")
 
 
 const fs = require("fs")
@@ -64,14 +65,15 @@ function post(body, postToken) {
     const userToken = body.userToken;
     const title = body.title;
     const content = body.content;
-
+    const date = moment().format()
 
 
     let data = {
-        "pageToken": pageToken,
-        "userToken": userToken,
+        pageToken,
+        userToken,
         "postTitle": title,
-        "postText": content
+        "postText": content,
+        date
     }
 
     //writeOnFile(path, JSON.stringify(data))
@@ -104,7 +106,20 @@ const sockets = require("socket.io")(80)
 function getPosts(userToken) {
     let token = userToken;
 
-    return getData("posts", token)//fs.readFileSync(`${Dir}/data/posts/${token}.json`, 'utf8') || "NOT FOUND"
+    return dateHandleing(getData("posts", token))//fs.readFileSync(`${Dir}/data/posts/${token}.json`, 'utf8') || "NOT FOUND"
+
+}
+
+function dateHandleing(data) {
+    let date = moment(data.date);
+    let now = moment()
+    if (date.isSame(now, 'year')) {
+        if (date.isSame(now, 'day')) {
+            if (date.isSame(now, 'hour'))
+                return { ...data, date: `${moment(data.date).fromNow("ss")} ago ` }
+        }
+    }
+    return { ...data, date: `posted in ${moment(data.date).fromNow("MMMM Do YYYY")} ` }
 
 }
 

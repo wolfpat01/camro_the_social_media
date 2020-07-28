@@ -45,7 +45,7 @@ class Login extends React.Component {
 
             <h3 key="messenger">{this.state.message}</h3>
             <button onClick={(e) => this.submit(e)} className='btn btn-primary'>Login</button>
-            <Bootstrap.NavLink href="/register">you don't have an account?</Bootstrap.NavLink>
+            <Bootstrap.NavLink href="/register">I don't have an account.</Bootstrap.NavLink>
         </form>
 
         </React.Fragment>
@@ -105,7 +105,7 @@ class Register extends React.Component {
 
             <h3>{this.state.message}</h3>
             <button onClick={(e) => this.submit(e)} className='btn btn-primary' disabled={this.state.disabled}>Register</button>
-            <Bootstrap.NavLink href="/login">do you already have an account?</Bootstrap.NavLink>
+            <Bootstrap.NavLink href="/login">i already have an account.</Bootstrap.NavLink>
         </div >
     }
 }
