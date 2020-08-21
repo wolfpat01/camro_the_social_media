@@ -7,16 +7,13 @@ const variables = {
 
 const moment = require("moment")
 
-
-const fs = require("fs")
 const randomString = require("randomstring")
-const port = 4000
-const Dir = "server"
+const port = 80
 
-const { fetch } = require("node-fetch");
 const crypto = require("crypto")
 
-// Easy file handleing 
+//
+///////////////////// Easy file handleing 
 const { LocaleDb } = require('informa-db.js')
 const path = 'server/data.json'
 
@@ -26,12 +23,12 @@ if (!Data.value) {
     Data.value = {}
 }
 Object.values(variables).forEach((vari) => {
-
     if (!Data.value[vari]) {
         Data.value[vari] = {}
     }
 })
 //////////////////////
+//
 
 function readArray(type) {
     return Object.values(Data.value[type])
@@ -84,10 +81,14 @@ function post(body, postToken) {
     }
     Data.value[variables.recommended]["default"].push(postToken)
 }
+
 function register(body) {
-    const userToken = body.userToken
+    let salt = randomString.generate(12)
+    var hash = crypto.createHash('md5').update(body.password + salt).digest("hex");
+    console.log("body")
+    const userToken = randomString.generate(12)
     const username = body.username;
-    const secrets = body.secrets;
+    const secrets = [salt, hash];
 
 
     let data = {
@@ -95,19 +96,18 @@ function register(body) {
         "pfp": body.pfp || "https://steamuserimages-a.akamaihd.net/ugc/955209606282075133/86D6BE9BD36DF085E365F8FB8ADA84B7FD0B5B03/",
         secrets
     }
-
-
     writeData("users", { token: userToken, ...data })
 }
 
 // socket way
-const sockets = require("socket.io")(80)
+const sockets = require("socket.io")(port)
+
+console.log(`server is now running on port ${port}`)
 
 function getPosts(userToken) {
     let token = userToken;
 
-    return dateHandleing(getData("posts", token))//fs.readFileSync(`${Dir}/data/posts/${token}.json`, 'utf8') || "NOT FOUND"
-
+    return dateHandleing(getData("posts", token))
 }
 
 function dateHandleing(data) {
@@ -151,20 +151,16 @@ sockets.on('connection', socket => {
     })
 
     socket.on("register", data => {
-        let salt = randomString.generate(12)
-        var hash = crypto.createHash('md5').update(data.password + salt).digest("hex");
-        let userToken = randomString.generate(12)
-
-
-        // verify if the password is less than 8 digits
-        if (data.password.length < 8) {
-            socket.emit("message", "sorry but your password has less than 8 characters")
+        console.log("yoo", data)
+        // abusing
+        if (data.password.length < 8 || data.username.length < 8) {
+            socket.emit("message", "STOPID")
 
         } else {
             //verify if there is another user with this same user
             checkUserName(data.username, registerRejectionUsername).then(() => {
                 // add user
-                register({ username: data.username, userToken, pfp: data.pfp, secrets: [hash, salt] })
+                register(data)
                 socket.emit("message", { message: "Registerd SUccessFully!", status: 200 })
             }).catch(message => socket.emit("message", { message, status: 300 }))
         }

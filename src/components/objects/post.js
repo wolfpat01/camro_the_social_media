@@ -12,60 +12,52 @@ import io from "socket.io-client"
 const darky = "pannelDark";
 const lighty = "bg-info";
 
-
-class Post extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            postData: {
-                postText: "loading..",
-                postTitle: "Loading.."
-            }
-
-        }
-        this.getPostDataSocketWay();
-
-    }
-    getPostDetails(props) {
-        getPostData(this.props.token || "token").then((res) => JSON.parse(res)).then((postData) => this.setState({ postData }))
-    }
-
-    getPostDataSocketWay() {
-
-        const socket = io("localhost:80");
-
-        socket.emit("postData", { token: this.props.token || "token" })
-        socket.on("postData", (postData) => {
-
-            this.setState({ postData: postData })
-            //this.state.postData = JSON.parse(postData)
-
-        })
+const serverUrl = "localhost:80"
 
 
-    }
-    makeSure() {
+function GetPostData(token) {
+    return new Promise((solve, reject) => {
+        const socket = io(serverUrl);
 
-        if (this.state.postData.userToken) {
-            return <User token={this.state.postData.userToken} darkTheme={this.props.darkTheme}></User>
-        } else { return <p>loading..</p> }
-    }
-    render() {
-        //this.getPostDetails();
-        let postToken = ""
-        let pannelColor = this.props.darkTheme ? darky : lighty;
+        socket.emit("postData", { token: token || "token" })
+        socket.on("postData", solve)
+    })
 
-        return <div className={pannelColor + " col-12 postMain"}>
-            {this.makeSure()}
-            <div className="postback">
-                <PostData postToken={postToken} darkTheme={this.props.darkTheme}
-
-                    postText={this.state.postData.postText}></PostData>
-
-            </div>
-            <p>{this.state.postData.date}</p>
-        </div>
-    }
 }
+function makeSureUserExists(options) {
+    if (options.userToken) {
+        return <User {...options}></User>
+    } else { return <p>loading..</p> }
+}
+
+function Post(props) {
+    let [postData, setPostData] = React.useState({
+        postText: "loading..",
+        postTitle: "Loading..",
+        date: "loading.."
+    })
+
+    // setting post data
+    React.useEffect(() => {
+        GetPostData(props.token).then(setPostData)
+    })
+
+    //this.getPostDetails();
+    let postToken = ""
+    let pannelColor = props.darkTheme ? darky : lighty;
+
+    return <div className={pannelColor + " col-12 postMain"}>
+        {makeSureUserExists({ darkTheme: props.darkTheme, ...postData })}
+        <div className="postback">
+            <PostData postToken={postToken} darkTheme={props.darkTheme}
+
+                postText={postData.postText}></PostData>
+
+        </div>
+        <p>{postData.date}</p>
+    </div>
+}
+
+
 
 export default Post

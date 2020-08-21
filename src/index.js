@@ -14,22 +14,12 @@ import * as serviceWorker from './serviceWorker';
 ReactDOM.render(
   <Router>
     <Switch>
-      <Route path="/login">
-        <Login />
-      </Route>
-      <Route path="/register">
-        <Register />
-      </Route>
-      <Route path="/logout">
-        <Logout />
-      </Route>
-      <Route path="/">
-        <App />
-      </Route>
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/logout" component={Logout} />
+      <Route path="/" component={App} />
     </Switch>
   </Router>
-  //
-
   ,
   document.getElementById('root')
 );

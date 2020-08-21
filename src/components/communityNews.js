@@ -7,60 +7,51 @@ import Poster from "./objects/poster.js"
 import { getListPosts } from "./helpers/serverHandler"
 
 import io from "socket.io-client"
-class Communitytab extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            posts: []
-        }
 
+const serverUrl = "localhost:80"
 
-        this.getPostsSocketWay()
-    }
-    getPosts() {
-        getListPosts(this.props.token).then(JSON.parse).then((posts => this.setState({ posts })))
-    }
-    getPostsSocketWay() {
-        const socket = io("localhost:80")
+function getPostsSocketWay(postsData, setPostsData) {
+    const socket = io(serverUrl)
 
-        socket.emit("gimmeStarter", { token: "token" })
-        socket.on("starter", (allPosts) => {
+    socket.emit("gimmeStarter", { token: "token" })
+    socket.on("starter", setPostsData)
+    socket.on("newPost", (newPost) => {
+        let posts = postsData || []
+        posts.push(newPost)
+        setPostsData(posts)
+    })
 
-            this.setState({ posts: allPosts })
-
-        })
-        socket.on("newPost", (newPost) => {
-            let old = this.state.posts || []
-
-            old.push(newPost)
-            this.setState({ posts: old })
-        })
-
-    }
-
-    render() {
-        return <div >
-            <Poster token={this.props.token}></Poster>
-            news
-
-            {this.renderPosts(this.state.posts)}
-        </div>
-    }
-
-
-    renderPosts(postsData) {
-
-        if (!postsData[0]) {
-            return <h2>Loading...</h2>
-        }
-        let loader = postsData.slice().reverse().map((token) => {
-
-            return <Post token={token} key={token} darkTheme={this.props.darkTheme} ></ Post >
-        })
-
-        return <Bootstrap.Row>
-            {loader}
-        </Bootstrap.Row>
-    }
 }
-export default Communitytab
+
+function renderPosts(postsData, darkTheme) {
+
+    if (!postsData[0]) {
+        return <h2>Loading...</h2>
+    }
+    let loader = postsData.slice().reverse().map((token) => {
+
+        return <Post token={token} key={token} darkTheme={darkTheme} ></ Post >
+    })
+
+    return <Bootstrap.Row>
+        {loader}
+    </Bootstrap.Row>
+}
+
+function CommunityTab(props) {
+
+    const [postsData, setPostsData] = React.useState([])
+
+    React.useEffect(() => {
+        getPostsSocketWay(postsData, setPostsData)
+    })
+
+    return <div >
+        <Poster token={props.token}></Poster>
+    news
+
+    {renderPosts(postsData, props.darkTheme)}
+    </div>
+}
+
+export default CommunityTab

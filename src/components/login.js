@@ -1,4 +1,6 @@
 import React from "react"
+
+
 import io from "socket.io-client"
 
 import "./../css/login.css"
@@ -6,122 +8,140 @@ import "./../css/login.css"
 
 import * as Bootstrap from 'react-bootstrap';
 import Cookies from 'js-cookie';
-import Input from "./objects/input"
-class Login extends React.Component {
-    constructor() {
-        super()
-        this.state = {
-            username: "",
-            password: "",
-            message: "",
+import Input from "./objects/input";
 
-        }
-    }
-    handleChange = (e) => {
-        this.setState({
-            [e.target.name]: e.target.value
-        })
-    }
-    submit() {
-        this.state.message = ""
-        let socket = io("localhost:80")
-        socket.emit("login", { username: this.state.username, password: this.state.password })
-        socket.on("message", data => {
-            this.setState({ message: data.message })
-            console.log(data)
-            if (data.token) {
-                Cookies.set("userData", data.token);
-                console.log("logged In!")
-            }
+const language = {
+    register: "register",
+    the_username_is_too_short: "the username is too short",
+    the_password_is_too_short: "the password is too short",
 
 
-        })
-    }
-    render() {
-        return <React.Fragment> <form className=" login">
-            <h3 className="text-center">Login</h3>
-            <Input name="username" display="username" onChange={(e) => this.handleChange(e)} required></Input><br />
-            <Input name="password" type="password" display="password" onChange={(e) => this.handleChange(e)} required></Input><br />
+    password_is_not_confirmed: "password is not confirmed",
 
-            <h3 key="messenger">{this.state.message}</h3>
-            <button onClick={(e) => this.submit(e)} className='btn btn-primary'>Login</button>
-            <Bootstrap.NavLink href="/register">I don't have an account.</Bootstrap.NavLink>
-        </form>
-
-        </React.Fragment>
-    }
 }
-class Register extends React.Component {
-    constructor() {
-        super()
-        this.state = {
-            username: "",
-            password: "",
-            message: "",
-            disabled: false
+
+
+
+const defaultRegisterData = { username: "", password: "", pfp: "", verifyPassword: '' }
+
+
+function handleChange(e, oldV, f) {
+    let newV = oldV;
+    newV[e.target.name] = e.target.value
+    f(newV)
+}
+
+const serverUrl = "localhost:80"
+
+
+/**this function for submiting login to server
+ * @prop {options} -setMessage, loginData{username, password}
+ */
+function submitLogin(options) {
+    const { setMessage, loginData } = options
+
+    let socket = io(serverUrl)
+    socket.emit("login", loginData)
+    socket.on("message", ({ message, token }) => {
+        setMessage(message)
+        if (token) {
+            Cookies.set("userData", { message, token });
+            console.log("loggedin")
         }
+    })
+}
+
+/**this function for submiting register to server
+ * @prop {options} -username, password, verifyPassword, setMessage, pfp, setdisabledRegister
+ */
+function submitRegister(setMessage, options) {
+
+    const { registerData, setRedirected } = options
+    const { username, password, pfp, verifyPassword } = registerData
+    let socket = io(serverUrl)
+    if (username.length < 8) {
+        setMessage(language.the_username_is_too_short)
+        return
     }
-    handleChange = (e) => {
-        this.setState({
-            [e.target.name]: e.target.value
-        })
+    if (verifyPassword != password) {
+        setMessage(language.password_is_not_confirmed)
+        return
     }
-    submit(e) {
-        this.state.message = ""
-        let socket = io("localhost:80")
-        if (this.state.username.length < 8) {
-            this.setState({ message: "the length of the username is less then 8" })
-            return
-        }
-        if (this.state.verifyPassword !== this.state.password) {
-            this.setState({ message: "password is not verified" })
-            return
-        }
-        if (this.state.password.length < 8) {
-            this.setState({ message: "the length of the password is less then 8" })
-            return
-        }
-        socket.emit("register", { username: this.state.username, password: this.state.password, pfp: this.state.pfp })
-
-        socket.on("message", ({ message, status }) => {
-            if (status === 200) {
-                this.setState({ message, disabled: true })
-                // redirect
-
-            } else {
-
-                this.setState({ message })
-            }
-        })
+    if (password.length < 8) {
+        setMessage(language.the_password_is_too_short)
+        return
     }
-    render() {
 
+    socket.emit("register", { username, password, pfp })
+
+    socket.on("message", ({ message, status }) => {
+        if (status === 200) {
+            setMessage(message)
+            // redirect to main
+
+
+        } else {
+            setMessage(message)
+        }
+    })
+    socket.disconnect();
+}
+
+
+function Login(props) {
+    let [loginData, setLoginData] = React.useState({ username: "", password: "" })
+    let [message, setMessage] = React.useState("")
+
+    return <React.Fragment> <form className=" login">
+        <h3 className="text-center">Login</h3>
+        <Input name="username" display="username" onChange={(e) => handleChange(e, loginData, setLoginData)} required></Input><br />
+        <Input name="password" type="password" display="password" onChange={(e) => handleChange(e, loginData, setLoginData)} required></Input><br />
+
+        <h3 key="messenger">{message}</h3>
+        <button onClick={() => submitLogin({ setMessage, loginData })} className='btn btn-primary'>Login</button>
+        <Bootstrap.NavLink href="/register">I don't have an account.</Bootstrap.NavLink>
+    </form>
+
+    </React.Fragment>
+}
+
+
+function Register(props) {
+    // setting states
+    let [registerData, setRegisterData] = React.useState(defaultRegisterData)
+
+    let [message, setMessage] = React.useState("")
+    let [redirected, setRedirected] = React.useState(false)
+
+    if (redirected == false) {
         return <div className=" login ">
             <h3 className="text-center">Register</h3>
-            <Input name="pfp" display="link to pfp" onChange={(e) => this.handleChange(e)}></Input><br />
-            <Input name="username" display="username" onChange={(e) => this.handleChange(e)}></Input><br />
-            <Input type="password" name="password" display="password" onChange={(e) => this.handleChange(e)}></Input><br />
-            <Input type="password" name="verifyPassword" display="repeate Password" onChange={(e) => this.handleChange(e)}></Input><br />
+            <Input name="pfp" display="link to pfp" onChange={(e) => handleChange(e, registerData, setRegisterData)}></Input><br />
+            <Input name="username" display="username*" onChange={(e) => handleChange(e, registerData, setRegisterData)} required></Input><br />
+            <Input type="password" name="password" display="password*" onChange={(e) => handleChange(e, registerData, setRegisterData)} required></Input><br />
+            <Input type="password" name="verifyPassword" display="Confirm Password*" onChange={(e) => handleChange(e, registerData, setRegisterData)} required></Input><br />
 
-            <h3>{this.state.message}</h3>
-            <button onClick={(e) => this.submit(e)} className='btn btn-primary' disabled={this.state.disabled}>Register</button>
+            <h3>{message}</h3>
+            <button onClick={() => submitRegister(setMessage, { registerData, setRedirected })} className='btn btn-primary' >Register</button>
             <Bootstrap.NavLink href="/login">i already have an account.</Bootstrap.NavLink>
         </div >
+    } else {
+        return <React.Link to="/">home</React.Link>
     }
 }
 
 
-class Logout extends React.Component {
 
-    logOut() {
-        Cookies.set("userData", "")
-    }
-    render() {
-        return (<React.Fragment>
-            <a>DO you wish to loadout?</a>
-            <button onClick={() => this.logOut()} herf="/login">yes</button>
-
-        </React.Fragment>)
-    }
+function logOut() {
+    Cookies.set("userData", "")
 }
+
+function Logout(props) {
+    return (<React.Fragment>
+        <a>DO you wish to loadout?</a>
+        <button onClick={() => logOut()} herf="/login">yes</button>
+
+    </React.Fragment>)
+}
+
 export { Login, Register, Logout }

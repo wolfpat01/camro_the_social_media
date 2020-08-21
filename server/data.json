@@ -1,82 +1,11 @@
 {
-	"recomended": {
-		"default": [
-			"Th5lY293",
-			"uT43Ri0E",
-			"fBT1Isgk",
-			"pawfOxFS",
-			"9MA4gcaf",
-			"bigc81bX",
-			"1DuaM9uD"
-		]
-	},
-	"users": {
-		"JX1GewroBFNW": {
-			"token": "JX1GewroBFNW",
+	"recomended": {},
+	"users": [
+		{
 			"username": "wolfpat01",
 			"pfp": "https://steamuserimages-a.akamaihd.net/ugc/955209606282075133/86D6BE9BD36DF085E365F8FB8ADA84B7FD0B5B03/",
-			"secrets": [
-				"ace1a7111cb4303cbcd5855e462e66b9",
-				"wxZ57FSEKdLQ"
-			]
+			"secrets": []
 		}
-	},
-	"posts": {
-		"DBtb0yWt": {
-			"token": "DBtb0yWt",
-			"userToken": "JX1GewroBFNW",
-			"postTitle": "title",
-			"postText": "this si ",
-			"date": "2020-07-28T22:33:40+01:00"
-		},
-		"Th5lY293": {
-			"token": "Th5lY293",
-			"userToken": "JX1GewroBFNW",
-			"postTitle": "title",
-			"postText": "no its not",
-			"date": "2020-07-28T22:33:40+01:00"
-		},
-		"uT43Ri0E": {
-			"token": "uT43Ri0E",
-			"userToken": "JX1GewroBFNW",
-			"postTitle": "title",
-			"postText": "this is it",
-			"date": "2020-07-28T22:33:40+01:00"
-		},
-		"fBT1Isgk": {
-			"token": "fBT1Isgk",
-			"userToken": "JX1GewroBFNW",
-			"postTitle": "title",
-			"postText": "yeeti",
-			"date": "2020-07-28T22:33:40+01:00"
-		},
-		"pawfOxFS": {
-			"token": "pawfOxFS",
-			"userToken": "JX1GewroBFNW",
-			"postTitle": "title",
-			"postText": "skajflkdjfadfasdflj\\nsdlakfja;lsdkjf;alksdj;lfakdjs;lf\\n\\n\\n\\n\\n\\njalksfj;aslkdjfa;lsdkjfalsd",
-			"date": "2020-07-28T22:33:40+01:00"
-		},
-		"9MA4gcaf": {
-			"token": "9MA4gcaf",
-			"userToken": "JX1GewroBFNW",
-			"postTitle": "title",
-			"postText": "skajflkdjfadfasdflj\\nsdsdsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss s s                                                                                        ssssssssssssssssssssssssssssssssssssssssslakfja;lsdkjf;alksdj;lfakdjs;lf\\n\\n\\n\\n\\n\\njalksfj;aslkdjfa;lsdkjfalsd",
-			"date": "2020-07-28T22:33:40+01:00"
-		},
-		"bigc81bX": {
-			"token": "bigc81bX",
-			"userToken": "JX1GewroBFNW",
-			"postTitle": "title",
-			"postText": "this is how",
-			"date": "2020-07-28T22:33:40+01:00"
-		},
-		"1DuaM9uD": {
-			"token": "1DuaM9uD",
-			"userToken": "JX1GewroBFNW",
-			"postTitle": "title",
-			"postText": "yoo boi",
-			"date": "2020-07-28T22:57:21+01:00"
-		}
-	}
+	],
+	"posts": {}
 }

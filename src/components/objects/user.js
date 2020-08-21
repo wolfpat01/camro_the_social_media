@@ -1,56 +1,44 @@
 import React from "react";
-import * as Bootstrap from "react-bootstrap"
-
-import { getUser } from "../helpers/serverHandler"
 
 import io from "socket.io-client"
-
-
+import * as Bootstrap from "react-bootstrap";
 
 const white = "whiteText";
 const dark = "darkText";
 
-class User extends React.Component {
+const serverUrl = "localhost:80"
+const defaultAvatar = "https://png.pngtree.com/png-clipart/20190918/ourmid/pngtree-load-the-3273350-png-image_1733730.jpg"
 
-    constructor(props) {
-        super(props);
-        this.state = { userData: { username: "LOADING..", pfp: "https://png.pngtree.com/png-clipart/20190918/ourmid/pngtree-load-the-3273350-png-image_1733730.jpg" } };
-        this.getUserDataSocketWay()
 
-    }
-    getUserDeta() {
+function getUserDataSocketWay(token, setUserData) {
+    const socket = io(serverUrl);
+    if (token)
+        socket.emit("userData", { token })
 
-        getUser(this.props.token).then(res => JSON.parse(res))
-            .then(json => this.setState({ userData: json }));
+    socket.on("userData", setUserData)
+}
 
-    }
-    getUserDataSocketWay() {
-        const socket = io("localhost:80");
-        if (this.props.token)
-            socket.emit("userData", { token: this.props.token })
-        socket.on("userData", (userData) => {
-            this.setState({ userData: userData })
-            //this.state.postData = JSON.parse(userData)
-        })
-    }
+function User(props) {
+    const [userData, setUserData] = React.useState({ username: "LOADING..", pfp: "/src/assests/avatar.png" })
 
-    render() {
-        //this.getUserDeta();
+    React.useEffect(() => {
+        getUserDataSocketWay(props.token, setUserData)
+    })
 
-        let textColor = !this.props.darkTheme ? dark : white;
-        return (
-            <div>
-                <Bootstrap.Row>
-                    <Bootstrap.Col sm="1">
-                        <img className="pfp" src={this.state.userData.pfp} alt="Flowers in Chania" />
-                    </Bootstrap.Col>
-                    <Bootstrap.Col sm="9">
-                        <p className={`${textColor} ${this.props.additionalCalsses || " "}`} >{this.state.userData.username}</p>
-                    </Bootstrap.Col>
-                </Bootstrap.Row>
+    let textColor = !props.darkTheme ? dark : white;
 
-            </div >);
-    }
+    return (
+        <div>
+            <Bootstrap.Row>
+                <Bootstrap.Col sm="1">
+                    <img className="pfp" src={userData.pfp} onError={(e) => { e.onerror = null; e.src = defaultAvatar }} alt="Flowers in Chania" />
+                </Bootstrap.Col>
+                <Bootstrap.Col sm="9">
+                    <p className={`${textColor} ${props.additionalCalsses || " "}`} >{userData.username}</p>
+                </Bootstrap.Col>
+            </Bootstrap.Row>
+
+        </div >)
 }
 
 
