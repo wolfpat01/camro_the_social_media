@@ -1,28 +1,17 @@
 import React from "react";
+import { getUser } from "../helpers/serverHandler"
 
-import io from "socket.io-client"
 import * as Bootstrap from "react-bootstrap";
 
 const white = "whiteText";
 const dark = "darkText";
-
-const serverUrl = "localhost:80"
 const defaultAvatar = "https://png.pngtree.com/png-clipart/20190918/ourmid/pngtree-load-the-3273350-png-image_1733730.jpg"
 
-
-function getUserDataSocketWay(token, setUserData) {
-    const socket = io(serverUrl);
-    if (token)
-        socket.emit("userData", { token })
-
-    socket.on("userData", setUserData)
-}
-
-function User(props) {
+export default function User(props) {
     const [userData, setUserData] = React.useState({ username: "LOADING..", pfp: "/src/assests/avatar.png" })
 
     React.useEffect(() => {
-        getUserDataSocketWay(props.token, setUserData)
+        getUser(props.token, setUserData, props.onExists)
     })
 
     let textColor = !props.darkTheme ? dark : white;
@@ -40,6 +29,3 @@ function User(props) {
 
         </div >)
 }
-
-
-export default User

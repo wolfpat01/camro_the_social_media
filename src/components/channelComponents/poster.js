@@ -1,8 +1,7 @@
 import React from "react";
-import io from "socket.io-client"
-import Cookies from "js-cookie"
-import Input from "./input"
 
+import Input from "../style/input"
+import { sendPostRequest } from "../helpers/serverHandler"
 const serverUrl = "localhost:80"
 
 
@@ -13,26 +12,7 @@ function handleChange(e, oldV, f) {
     f(newV)
 }
 
-function sendPostRequest(e, { title, content }) {
-    const options = {
-        userToken: Cookies.get("userData"),
-        title,
-        content,
-    }
 
-    // socket way 
-    const socket = io(serverUrl);
-    socket.emit("submitPost", JSON.stringify(options))
-
-    /*
-            sendPostRequest(options)
-    
-            this.props.onPost()
-            //e.target.disabled = true;
-        */
-
-
-}
 
 function Poster() {
     const [postData, setPostData] = React.useState({ title: "", content: "" })

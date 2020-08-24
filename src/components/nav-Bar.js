@@ -11,7 +11,7 @@ const dark = "darkText";
 
 function makeSureUserExists(props) {
   if (props.token) {
-    return <div><User token={props.token} darkTheme={props.darkTheme} additionalCalsses="username"></User>logout</div>
+    return <div><User token={props.token} darkTheme={props.darkTheme} additionalCalsses="username" onExist={() => { }}></User>logout</div>
   } else { return <p>loading..</p> }
 }
 

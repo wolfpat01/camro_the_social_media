@@ -19,6 +19,7 @@ const path = 'server/data.json'
 
 const Data = new LocaleDb({ path, defaultStr: {} })
 Data.saveOnChange = true
+
 if (!Data.value) {
     Data.value = {}
 }
@@ -42,11 +43,11 @@ function writeData(type, data) {
         wasthere = false
         console.log("yepish")
     }
-    console.log("yep")
     Data.value[type][data.token] = data
 
     return wasthere
 }
+
 function getData(type, id) {
 
     if (!Data.value[type]) {
@@ -85,7 +86,6 @@ function post(body, postToken) {
 function register(body) {
     let salt = randomString.generate(12)
     var hash = crypto.createHash('md5').update(body.password + salt).digest("hex");
-    console.log("body")
     const userToken = randomString.generate(12)
     const username = body.username;
     const secrets = [salt, hash];
@@ -124,6 +124,7 @@ function dateHandleing(data) {
 }
 
 sockets.on('connection', socket => {
+
     socket.on("postData", (args) => {
         socket.emit("postData", getPosts(args.token))
     })
@@ -131,7 +132,7 @@ sockets.on('connection', socket => {
         let token = args.token;
 
         let data = getData("users", token)
-        socket.emit("userData", { ...data, secrets: [] })
+        socket.emit("userData", { data: { ...data, secrets: [] }, status: data ? 200 : 500 })
     })
     socket.on("gimmeStarter", (args) => {
         let token = !args.token === "" ? args.token : "token";
@@ -144,6 +145,7 @@ sockets.on('connection', socket => {
     })
 
     socket.on('submitPost', (postData) => {
+        console.log("submited a new post")
         let body = JSON.parse(postData);
         let postToken = randomString.generate(8)
         post(body, postToken)
@@ -158,11 +160,11 @@ sockets.on('connection', socket => {
 
         } else {
             //verify if there is another user with this same user
-            checkUserName(data.username, registerRejectionUsername).then(() => {
+            checkUserName(data.username, false, registerRejectionUsername).then(() => {
                 // add user
                 register(data)
                 socket.emit("message", { message: "Registerd SUccessFully!", status: 200 })
-            }).catch(message => socket.emit("message", { message, status: 300 }))
+            }).catch(message => { socket.emit("message", { message, status: 300 }); console.log(message) })
         }
     })
     socket.on("login", data => {
@@ -173,12 +175,13 @@ sockets.on('connection', socket => {
 })
 
 const loginRejectionUsername = "username is incorrect"
-const registerRejectionUsername = "username is incorrect"
+const registerRejectionUsername = "username is used before"
+
 function checkLogin(username, password) {
-    return checkUserName(username, loginRejectionUsername).then((data) => checkPassword(data, password))
+    return checkUserName(username, true, loginRejectionUsername).then((data) => checkPassword(data, password))
 }
 
-function checkUserName(username, rejection) {
+function checkUserName(username, reverse, rejection) {
     return new Promise((solve, reject) => {
         //listing all files using forEach
         let exits = ''
@@ -187,11 +190,20 @@ function checkUserName(username, rejection) {
                 exits = user;
             }
         });
-        if (exits !== '') {
-            solve(exits)
+        if (reverse) {
+            if (exits !== '') {
+                solve(exits)
+            } else {
+                reject(rejection)
+            }
         } else {
-            reject(rejection)
+            if (exits === '') {
+                solve(exits)
+            } else {
+                reject(rejection)
+            }
         }
+
     });
 
 }
@@ -199,7 +211,8 @@ function checkUserName(username, rejection) {
 function checkPassword(data, password) {
     return new Promise((solve, reject) => {
         var hash = crypto.createHash('md5').update(password + data.secrets[1]).digest("hex");
-        if (hash === data.secrets[0]) {
+        console.log(hash, data.secrets[0])
+        if (hash == data.secrets[0]) {
             solve(data)
         } else {
             reject("password is incorrect")

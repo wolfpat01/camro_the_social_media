@@ -1,36 +1,24 @@
 import React from "react";
-import { getPostData } from "../helpers/serverHandler"
+import { GetPostData } from "../helpers/serverHandler"
 
-import User from "./user";
+import User from "../objects/user";
 import PostData from "./postData"
 import "../../css/post.css"
 
-//socket way 
-import io from "socket.io-client"
 
 
 const darky = "pannelDark";
 const lighty = "bg-info";
 
-const serverUrl = "localhost:80"
 
 
-function GetPostData(token) {
-    return new Promise((solve, reject) => {
-        const socket = io(serverUrl);
-
-        socket.emit("postData", { token: token || "token" })
-        socket.on("postData", solve)
-    })
-
-}
 function makeSureUserExists(options) {
     if (options.userToken) {
         return <User {...options}></User>
     } else { return <p>loading..</p> }
 }
 
-function Post(props) {
+export default function Post(props) {
     let [postData, setPostData] = React.useState({
         postText: "loading..",
         postTitle: "Loading..",
@@ -57,7 +45,3 @@ function Post(props) {
         <p>{postData.date}</p>
     </div>
 }
-
-
-
-export default Post

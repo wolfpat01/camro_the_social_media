@@ -2,12 +2,14 @@ import React from 'react';
 
 import './css/App.css';
 import * as Bootstrap from "react-bootstrap"
-import CommunityNews from "./components/communityNews"
+import CommunityTab from "./components/communityNews"
 import MenuBar from "./components/nav-Bar";
 import Cookies from "js-cookie"
+
 let token = Cookies.get("userData")
 let DarkTheme = true
-function App() {
+
+export default function App() {
   return (
     <React.Fragment>
 
@@ -16,7 +18,7 @@ function App() {
 
         <Bootstrap.Row>
           <Bootstrap.Col sm="8">
-            <CommunityNews token={token} darkTheme={DarkTheme} />
+            <CommunityTab token={token} darkTheme={DarkTheme} />
           </Bootstrap.Col>
         </Bootstrap.Row>
 
@@ -25,4 +27,3 @@ function App() {
   );
 }
 
-export default App;

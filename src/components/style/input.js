@@ -9,7 +9,6 @@ function onChange(e, f) {
 
 
 function Input(props) {
-
     return (<React.Fragment>
         <div className="group">
             <input type={props.type || "text"} name={props.name} className="inputfeild" onChange={(e) => onChange(e, props.onChange)} required />
