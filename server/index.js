@@ -35,6 +35,7 @@ function readArray(type) {
     return Object.values(Data.value[type])
 }
 
+
 function writeData(type, data) {
     let wasthere = true
 
@@ -48,19 +49,10 @@ function writeData(type, data) {
     return wasthere
 }
 
-function getData(type, id) {
-
-    if (!Data.value[type]) {
-        Data.value[type] = {}
-
-    }
-    return Data.value[type][id]
-}
-
-
 function post(body, postToken) {
     const pageToken = body.pageToken;
     const userToken = body.userToken;
+    if (!userToken) return
     const title = body.title;
     const content = body.content;
     const date = moment().format()
@@ -68,6 +60,7 @@ function post(body, postToken) {
 
     let data = {
         pageToken,
+        token: postToken,
         userToken,
         "postTitle": title,
         "postText": content,
@@ -75,7 +68,7 @@ function post(body, postToken) {
     }
 
     //writeOnFile(path, JSON.stringify(data))
-    writeData("posts", { token: postToken, ...data })
+    writeData("posts", data)
 
     if (!Data.value[variables.recommended]["default"]) {
         Data.value[variables.recommended]["default"] = []
@@ -99,49 +92,93 @@ function register(body) {
     writeData("users", { token: userToken, ...data })
 }
 
-// socket way
+
+function asyncGetData(type, id) {
+    return new Promise((solve, reject) => {
+
+        if (!Data.value[type]) {
+            Data.value[type] = {}
+            reject("no data with that id")
+
+        } else {
+            solve(Data.value[type][id])
+        }
+    })
+}
+
+function getData(type, id) {
+    try {
+        if (!Data.value[type]) {
+            Data.value[type] = {}
+
+        }
+        return Data.value[type][id]
+    } catch (err) {
+    }
+}
+
+
+//////////// less code
+
 const sockets = require("socket.io")(port)
 
 console.log(`server is now running on port ${port}`)
 
-function getPosts(userToken) {
-    let token = userToken;
 
-    return dateHandleing(getData("posts", token))
+function asyncGetUser(token) {
+    return asyncGetData(variables.users, token)
 }
 
-function dateHandleing(data) {
-    let date = moment(data.date);
-    let now = moment()
-    if (date.isSame(now, 'year')) {
-        if (date.isSame(now, 'day')) {
-            if (date.isSame(now, 'hour'))
-                return { ...data, date: `${moment(data.date).fromNow("ss")} ago ` }
+function asyncGetRecommended(userToken) {
+    return asyncGetData(variables.recommended, userToken)
+}
+
+function asyncGetPosts(token) {
+    return asyncGetData("posts", token).then(asyncDataHandeling)
+}
+
+function asyncDataHandeling(data) {
+    return new Promise((solve, reject) => {
+        let date = moment(data.date);
+        let now = moment()
+
+        if (date.isSame(now, 'year')) {
+            if (date.isSame(now, 'day')) {
+                if (date.isSame(now, 'hour')) {
+                    solve({ ...data, date: `${moment(data.date).fromNow("ss")} ago ` })
+                    return
+                }
+            }
         }
-    }
-    return { ...data, date: `posted in ${moment(data.date).fromNow("MMMM Do YYYY")} ` }
+        solve({ ...data, date: `posted in ${moment(data.date).fromNow("MMMM Do YYYY")} ` })
 
+    })
 }
+
 
 sockets.on('connection', socket => {
 
     socket.on("postData", (args) => {
-        socket.emit("postData", getPosts(args.token))
+        asyncGetPosts(args.token).then((_data) => {
+            socket.emit("postData", _data)
+        }).catch("data is not defined")
     })
+
     socket.on("userData", (args) => {
         let token = args.token;
 
-        let data = getData("users", token)
-        socket.emit("userData", { data: { ...data, secrets: [] }, status: data ? 200 : 500 })
+        asyncGetUser(token).then((data) => {
+            socket.emit("userData", { data: { ...data, secrets: [] }, status: (data ? 200 : 500) })
+        }).catch(console.log)
+
     })
     socket.on("gimmeStarter", (args) => {
-        let token = !args.token === "" ? args.token : "token";
-
-        let data = getData(variables.recommended, token)
-        if (!data) data = getData(variables.recommended, "default")
-
-        if (data)
+        let userToken = !args.token === "" ? args.token : "token";
+        asyncGetRecommended(userToken).then((data) => {
             socket.emit("starter", data)
+        }).catch(asyncGetRecommended("default").then((data) => {
+            socket.emit("starter", data)
+        }))
     })
 
     socket.on('submitPost', (postData) => {
@@ -211,7 +248,6 @@ function checkUserName(username, reverse, rejection) {
 function checkPassword(data, password) {
     return new Promise((solve, reject) => {
         var hash = crypto.createHash('md5').update(password + data.secrets[1]).digest("hex");
-        console.log(hash, data.secrets[0])
         if (hash == data.secrets[0]) {
             solve(data)
         } else {

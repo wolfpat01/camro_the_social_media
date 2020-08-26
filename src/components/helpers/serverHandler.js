@@ -6,10 +6,7 @@ const language = {
     register: "register",
     the_username_is_too_short: "the username is too short",
     the_password_is_too_short: "the password is too short",
-
-
     password_is_not_confirmed: "password is not confirmed",
-
 }
 
 const serverUrl = "localhost:80"
@@ -17,16 +14,25 @@ const serverUrl = "localhost:80"
 const socket = io(serverUrl);
 
 export function GetPostData(token) {
+
     return new Promise((solve, reject) => {
-
-
         socket.emit("postData", { token: token || "token" })
         socket.on("postData", solve)
     })
-
 }
 
+export function asyncGetPosts(postsData, setPostsData) {
+    socket.on("newPost", (newPost) => {
+        let posts = postsData || []
+        posts.push(newPost)
+        setPostsData(posts)
+    })
+    return new Promise((solve, reject) => {
+        socket.on("starter", solve)
 
+        socket.emit("gimmeStarter", { token: "token" })
+    })
+}
 export function getPost(postsData, setPostsData) {
     socket.emit("gimmeStarter", { token: "token" })
     socket.on("starter", setPostsData)
@@ -35,7 +41,6 @@ export function getPost(postsData, setPostsData) {
         posts.push(newPost)
         setPostsData(posts)
     })
-
 }
 
 export function sendPostRequest(e, { title, content }) {
@@ -47,18 +52,23 @@ export function sendPostRequest(e, { title, content }) {
     socket.emit("submitPost", JSON.stringify(options))
 }
 
-export function getUser(token, setUserData, onExists = () => { }) {
-    if (token)
-        socket.emit("userData", { token })
+export function getUser(token) {
+    return new Promise((solve, reject) => {
+        if (token) {
+            socket.emit("userData", { token })
 
-    socket.on("userData", ({ data, status }) => {
-        if (status == 200) {
-            onExists(data)
-            setUserData(data)
+            socket.on("userData", ({ data, status }) => {
+                if (status === 200) {
+                    solve(data)
+                } else {
+                    reject(`failed with status of ${status}`)
+                }
+            });
         } else {
-
+            reject("no token")
         }
-    })
+    });
+
 }
 
 
@@ -74,7 +84,7 @@ export function submitLogin(options) {
     socket.on("message", ({ message, token }) => {
         setMessage(message)
         if (token) {
-            Cookies.set("userData", { message, token });
+            Cookies.set("userData", token);
             console.log("loggedin")
         }
     })

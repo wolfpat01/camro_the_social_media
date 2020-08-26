@@ -1,18 +1,17 @@
 import React from "react";
 import { getUser } from "../helpers/serverHandler"
-
+import defaultAvatar from "../../assests/avatar.png"
 import * as Bootstrap from "react-bootstrap";
 
 const white = "whiteText";
 const dark = "darkText";
-const defaultAvatar = "https://png.pngtree.com/png-clipart/20190918/ourmid/pngtree-load-the-3273350-png-image_1733730.jpg"
+
 
 export default function User(props) {
-    const [userData, setUserData] = React.useState({ username: "LOADING..", pfp: "/src/assests/avatar.png" })
-
+    const [userData, setUserData] = React.useState({ username: "LOADING..", pfp: defaultAvatar })
     React.useEffect(() => {
-        getUser(props.token, setUserData, props.onExists)
-    })
+        getUser(props.token).then(setUserData).catch(console.log)
+    }, [props.token])
 
     let textColor = !props.darkTheme ? dark : white;
 
@@ -20,12 +19,11 @@ export default function User(props) {
         <div>
             <Bootstrap.Row>
                 <Bootstrap.Col sm="1">
-                    <img className="pfp" src={userData.pfp} onError={(e) => { e.onerror = null; e.src = defaultAvatar }} alt="Flowers in Chania" />
+                    <img className="pfp" src={userData.pfp} />
                 </Bootstrap.Col>
                 <Bootstrap.Col sm="9">
                     <p className={`${textColor} ${props.additionalCalsses || " "}`} >{userData.username}</p>
                 </Bootstrap.Col>
             </Bootstrap.Row>
-
         </div >)
 }

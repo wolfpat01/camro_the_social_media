@@ -2,7 +2,7 @@ import React from "react";
 
 import Input from "../style/input"
 import { sendPostRequest } from "../helpers/serverHandler"
-const serverUrl = "localhost:80"
+
 
 
 function handleChange(e, oldV, f) {

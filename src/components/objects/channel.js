@@ -4,12 +4,12 @@ import * as Bootstrap from "react-bootstrap";
 
 import Post from "../channelComponents/post"
 import Poster from "../channelComponents/poster.js"
-import { getPost } from "../helpers/serverHandler"
+import { getPost, asyncGetPosts } from "../helpers/serverHandler"
 
 
 
 function renderPosts(postsData, darkTheme) {
-
+    if (!postsData) return
     if (!postsData[0]) {
         return <h2>Loading...</h2>
     }
@@ -31,7 +31,6 @@ function view(props, postsData, viewMod) {
 
                 <Poster token={props.token}></Poster>
             </div>
-            break;
 
         default:
             return <div>
@@ -39,7 +38,6 @@ function view(props, postsData, viewMod) {
 
                 {renderPosts(postsData, props.darkTheme)}
             </div>
-            break;
     }
 }
 
@@ -51,8 +49,8 @@ export default function Channel(props) {
     const [viewMod, setViewMod] = React.useState(props.viewMod || 0)
 
     React.useEffect(() => {
-        getPost(postsData, setPostsData)
-    })
+        asyncGetPosts(postsData, setPostsData).then(setPostsData)
+    }, [postsData])
 
     return view(props, postsData, viewMod)
 }
